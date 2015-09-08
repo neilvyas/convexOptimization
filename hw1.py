@@ -3,14 +3,18 @@ from cvxpy import *
 import datetime
 import logging
 import numpy as np
+import numpy.ma as ma 
 import scipy.sparse
 import time
 
 #log file for each run.
-dateTag = datetime.datetime.now().strftime("%Y-%b-%d_%H-%M-%S")
-logging.basicConfig(filename='hw1_{}.log'.format(dateTag),level=logging.DEBUG)
+#dateTag = datetime.datetime.now().strftime("%Y-%b-%d_%H-%M-%S")
+#logging.basicConfig(filename='hw1_{}.log'.format(dateTag),level=logging.DEBUG)
+#this is more sophisticated than necessary
+logging.basicConfig(filename="hw1.log", level=logging.DEBUG)
 
 ### DATA GENERATION
+np.random.seed(1)
 #container classes.
 DataConfig = namedtuple('DataConfig', ('m', 'n', 'd', 'sigma'))
 Data = namedtuple('Data', ('m','n','X','beta','y','X_test','y_test'))
@@ -63,6 +67,7 @@ def test_proc(params, soln, fn = np.linalg.norm, **kwargs):
   X_test, y_test = params.X, params.y 
   return fn(X_test.dot(soln) - y_test)
 
+#ACTUAL HOMEWORK HAPPENS HERE!
 def lsq(params):
   m,n,A,b = params.m, params.n, params.A, params.b
   x = Variable(n)
@@ -72,15 +77,48 @@ def lsq(params):
   problem.solve()
   return x.value
 
-def lasso(data, lambda_ = 0.1):
-  pass
+def lasso(params, lambda_ = 0.1):
+  m,n,A,b = params.m, params.n, params.A, params.b
+  x = Variable(n)
+  objective = Minimize(sum_entries(square(A*x - b)) + norm(lambda_ * x, 1))
+  constraints = []
+  problem = Problem(objective, constraints)
+  problem.solve()
+  x0 = x.value
+  # we note some sparsity information here because it is of interest.
+  logging.info("Set lambda to {lambda_}".format(lambda_=lambda_))
+  logging.info("The noisy sparse target is: {b}".format(b=b[b > 1e-8]))
+  logging.info("The support of B is: {x0hat}".format(x0hat=x0[x0 > 1e-8]))
+  return x0
 
-def omp(data, sparsity=5):
-  pass
+def omp(params, sparsity=5):
+  m,n,A,b = params.m, params.n, params.A, params.b
+  #instantiate stuff.
+  i = 0
+  x = np.zeros((n,1)) #start off with no explanatory components.
+  Xhat = np.zeros((m,n)) #as above.
+  
+  while i < sparsity:
+    residual = b - np.dot(A, x)
+    projection = A.T.dot(residual)
+    best_component = np.argmax(projection)
 
+    #should replace this with masks, but for now I'm going to steal the hack sid has.
+    Xhat[:,best_component] = Xhat[:,best_component]
+    x = np.dot(np.linalg.pinv(Xhat), b) #introduce the new components into the solution vector.
+    i += 1
+
+  #blah blah DRY fix this later.
+  logging.info("Set sparsity to {sparsity}".format(sparsity=sparsity))
+  logging.info("The noisy sparse target is: {b}".format(b=b[b > 1e-8]))
+  logging.info("The support of B is: {xhat}".format(xhat=x[x > 0]))
+  return x
+
+procs = [lsq, lasso, omp]
 
 ###RUNNING
 def run_procedure(data, proc, **kwargs):
+  logging.info("\n")
   train_params, test_params = train_test(data)
   t0 = time.clock()
   soln = proc(train_params, **kwargs)
@@ -91,8 +129,17 @@ def run_procedure(data, proc, **kwargs):
   test_err =  test_proc(test_params, soln)
   logging.info("Train error was {err}".format(err=train_err))
   logging.info("Test error was {err}".format(err=test_err))
+  b = data.beta
+  logging.info("The actual sparse target is: {b}".format(b=b[b > 0]))
   return None
 
 if __name__ == "__main__":
-  data = generate_data_set(small)
-  run_procedure(data, lsq)
+  #data = generate_data_set(small)
+  #run_procedure(data, lsq)
+  #run_procedure(data, lasso)
+  #run_procedure(data, omp)
+
+  for data in generate_data(configs):
+    for proc in procs:
+      run_procedure(data, proc)
+  
