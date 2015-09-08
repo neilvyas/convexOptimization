@@ -85,11 +85,14 @@ def run_procedure(data, proc, **kwargs):
   t0 = time.clock()
   soln = proc(train_params, **kwargs)
   train_time = time.clock() - t0
+  logging.info("Ran on data that was {m}x{n} (m x n)".format(m=data.m, n=data.n))
   logging.info("running procedure {proc} took {train_time}s".format(proc=proc.__name__, train_time=train_time))
-  return test_proc(test_params, soln)
+  train_err = test_proc(TestParams(train_params.A, train_params.b), soln)
+  test_err =  test_proc(test_params, soln)
+  logging.info("Train error was {err}".format(err=train_err))
+  logging.info("Test error was {err}".format(err=test_err))
+  return None
 
 if __name__ == "__main__":
   data = generate_data_set(small)
-  #lsq_soln = lsq(data.m, data.n, data.X, data.y)
-  #print np.linalg.norm(data.X_test.dot(lsq_soln) - data.y_test)
-  print run_procedure(data, lsq)
+  run_procedure(data, lsq)
