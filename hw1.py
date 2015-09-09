@@ -1,3 +1,4 @@
+from __future__ import division #very important for properly instatiating sparse matrices!
 from collections import namedtuple
 from cvxpy import *
 import datetime
@@ -111,7 +112,7 @@ def omp(params, sparsity=5):
   #blah blah DRY fix this later.
   logging.info("Set sparsity to {sparsity}".format(sparsity=sparsity))
   logging.info("The noisy sparse target is: {b}".format(b=b[b > 1e-8]))
-  logging.info("The support of B is: {xhat}".format(xhat=x[x > 0]))
+  logging.info("The support of B is: {xhat}".format(xhat=x[x > 1e-8]))
   return x
 
 procs = [lsq, lasso, omp]
