@@ -105,8 +105,9 @@ def omp(params, sparsity=5):
     best_component = np.argmax(projection)
 
     #should replace this with masks, but for now I'm going to steal the hack sid has.
-    Xhat[:,best_component] = Xhat[:,best_component]
+    Xhat[:,best_component] = A[:,best_component]
     x = np.dot(np.linalg.pinv(Xhat), b) #introduce the new components into the solution vector.
+    logging.debug("In iteration {i} the components of x are {x}".format(i=i, x=x[x > 0]))
     i += 1
 
   #blah blah DRY fix this later.
@@ -142,5 +143,8 @@ if __name__ == "__main__":
 
   for data in generate_data(configs):
     for proc in procs:
-      run_procedure(data, proc)
+      try: 
+        run_procedure(data, proc)
+      except Exception as err:
+        logging.error("The optimization routine failed to terminate with exception: {err}".format(err=err))
   
