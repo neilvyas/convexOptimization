@@ -1,0 +1,78 @@
+\documentclass{article}
+\usepackage[a4paper, total={6in, 10in}]{geometry}
+\usepackage[fleqn]{mathtools}
+\usepackage{amssymb}
+\usepackage{relsize}
+\allowdisplaybreaks
+
+\usepackage{enumitem}
+\usepackage{changepage}
+
+\usepackage{heuristica} \usepackage[heuristica,vvarbb,bigdelims]{newtxmath}
+%\usepackage{epigrafica} \usepackage[LGR,OT1]{fontenc}
+
+\usepackage[T1]{fontenc}
+\renewcommand*\oldstylenums[1]{\textosf{#1}}
+
+\setlength\parindent{0pt}
+\newcommand{\bs}{\hfill$\blacksquare$}
+\newcommand{\ws}{\hfill$\square$}
+\newcommand{\claimproof}[2]{
+  \textbf{claim}: #1 \\
+  \textbf{pf}: #2 \bs
+}
+\newcommand{\mws}{\tag*{\hfill$\square$}}
+\newcommand{\indented}[1]{%
+    \begin{adjustwidth}{3em}{0em}%
+    #1
+    \end{adjustwidth}
+}
+\newcommand{\qgroup}[1]{
+  {\sffamily
+  \textbf{#1}\vspace{-5pt} \\
+  \makebox[\linewidth]{\rule{\linewidth}{2pt}} 
+  }
+}
+
+\newcommand{\tr}[1]{\ensuremath{#1^{\mathsmaller T}}}
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\Sym}{\ensuremath{\mathbb{S}}}
+
+\begin{document}
+
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayskip}{0pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+
+{\sffamily
+\textbf{Convex Optimization}\hfill\textbf{Homework 2}\vspace{-5pt}
+\makebox[\linewidth]{\rule{\linewidth}{2pt}} \\
+\textbf{Neil Vyas}\hfill nv4594\\
+}
+
+\qgroup{Written Questions}
+2. (from Boyd and Vanderberghe, Ex. 2.10) Consider the set
+$$ C = \{ x \in \R^n \mid \tr{x}Ax + \tr{b}x + x + c \leq 0 \} $$
+where $A\in\Sym^n, b\in\R^n, c\in\R$.
+\begin{enumerate}[label=(\alph*)]
+  \item Show that if $A\in\Sym^n_+$, then $C$ is convex. \\
+  \item Consider the set obtained by intersecting $C$ with a hyperplane: 
+    $$ C_1 = C \cap \{x \mid \tr{g}x + h = 0 \} $$
+    Show that $C_1$ is convex if $\exists \lambda\in\R $ such that $A + \lambda g\tr{g} \in \Sym^n_+$. \\
+\end{enumerate}
+
+3. (B\&V, Ex. 2.21) For disjoint, convex sets $C,D \subset \R^n$, let 
+$$ S = \{ (a,b) \mid \forall x\in C, \tr{a}x \leq b, \forall x \in D, \tr{a}x \geq b \} $$
+be the set of separating hyperplanes. Show that $S$ is convex.
+
+7. Let $v_1, v_2 \in \R^n$. Then prove $\exists c,d \in \R^n$ such that 
+$$ \{ x \mid ||x-v_1|| \leq ||x-v_2|| \} = \{x \mid \tr{c}x \leq d\} $$
+and construct $c,d$.
+
+8. Let $A \in \R^{n \times m}, B \in \R^{k \times m}$. Suppose $\forall x\in\R^m, Ax = 0 \Rightarrow Bx =0$. Then show
+$$\exists C\in\R^{k \times n} \text{ s.t } CA = B  $$
+
+Let $y \in \R^n$. 
+\end{document}
