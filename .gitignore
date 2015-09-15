@@ -2,6 +2,7 @@
 *.swp
 
 *.log
+*.pdf
 
 *.pyc
 
